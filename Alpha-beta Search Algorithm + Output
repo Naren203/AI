@@ -1,0 +1,84 @@
+# --------------------------------------------
+# UNIVERSAL ALPHA-BETA PRUNING (MAX at ROOT)
+# Works for ANY tree: Problem 1, 2, 3
+# --------------------------------------------
+
+best_path = []
+pruned = []
+
+
+def alpha_beta(node, alpha, beta, maximizing, tree, path):
+    global best_path, pruned
+
+    # Leaf node
+    if isinstance(tree[node], int):
+        return tree[node]
+
+    # MAX node
+    if maximizing:
+        max_eval = float('-inf')
+        for child in tree[node]:
+
+            # Prune check
+            if beta <= alpha:
+                pruned.append((node, child))
+                break
+
+            val = alpha_beta(child, alpha, beta, False, tree, path + [child])
+
+            # Update best move
+            if val > max_eval:
+                max_eval = val
+                if len(path) == 1:     # only update at root level
+                    best_path = path + [child]
+
+            alpha = max(alpha, val)
+
+        return max_eval
+
+    # MIN node
+    else:
+        min_eval = float('inf')
+        for child in tree[node]:
+
+            if beta <= alpha:
+                pruned.append((node, child))
+                break
+
+            val = alpha_beta(child, alpha, beta, True, tree, path + [child])
+            min_eval = min(min_eval, val)
+            beta = min(beta, val)
+
+        return min_eval
+
+
+# ----------------------------------------------------
+# 📌 ENTER ANY TREE HERE (Problem-1 / 2 / 3 / Your own)
+# ----------------------------------------------------
+
+# Example format (you will replace this with Problem 1/2/3 tree):
+tree = {
+    'A': ['B', 'C', 'D'],    # MAX
+    'B': ['E', 'F'],         # MIN
+    'C': ['G', 'H'],         # MIN
+    'D': ['I', 'J'],         # MIN
+    'E': 3, 'F': 5,
+    'G': 6, 'H': 9,
+    'I': 1, 'J': 2
+}
+
+root = 'A'
+
+# Run alpha-beta
+best_path = [root]
+pruned = []
+
+value = alpha_beta(root, float('-inf'), float('inf'), True, tree, [root])
+
+# --------------------------------------
+# OUTPUT
+# --------------------------------------
+print("\nFINAL RESULT")
+print("Root Value         :", value)
+print("Best Path Chosen   :", " → ".join(best_path))
+print("Pruned Branches    :", pruned)
